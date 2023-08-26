@@ -1,8 +1,9 @@
 import express from 'express';
 import ProductManager from '../models/ProductManager.js';
 
+
 const productsRouter = express.Router();
-const productManager = new ProductManager('./src/products.json');
+const productManager = new ProductManager('./src/products.json')
 
 export default function configureProductsRoutes(io) {
   productsRouter.get('/', async (req, res) => {

@@ -1,13 +1,18 @@
 const socket = io(); // Establecer conexión con el servidor
 
-socket.on('newProduct', (products) => {
-  console.log('Received new products:', products); // Agregar esta línea para mostrar los productos en la consola
+
+socket.on('prods', (products) => {
+  console.log('Received updated products:', products); // Agregar esta línea para mostrar los productos en la consola
   updateProductList(products);
+  window.location.reload();
 });
 
 socket.on('productDeleted', (productId) => {
   removeProduct(productId);
+  window.location.reload();
 });
+
+
 
 function updateProductList(products) {
   const productList = document.getElementById('product-list');
@@ -32,12 +37,23 @@ function removeProduct(productId) {
 function createProduct() {
   const productName = document.getElementById('productName').value;
   const productPrice = parseFloat(document.getElementById('productPrice').value);
+  const productDescription = document.getElementById('productDescription').value;
+  const producthumbnail = document.getElementById('productDescription').value;
+  const productCode= document.getElementById('productDescription').value;
+  const productStock = document.getElementById('productDescription').value;
+
+  console.log('productName:', productName); // Agrega esto para verificar
+  console.log('productPrice:', productPrice); // Agrega esto para verificar
+
   if (productName && !isNaN(productPrice)) {
-    const newProduct = { name: productName, price: productPrice };
-    socket.emit('newProduct', newProduct); // Emitir el evento con el nuevo producto
+    const newProduct = { name: productName, price: productPrice,description:productDescription, thumbnail: producthumbnail,code:productCode, stock: productStock };
+    socket.emit('newProduct', newProduct);
   }
 }
 
 function deleteProduct(productId) {
-  socket.emit('deleteProduct', productId);
+  const confirmDelete = confirm('¿Estás seguro de que deseas eliminar este producto?');
+  if (confirmDelete) {
+    socket.emit('deleteProduct', productId);
+  }
 }

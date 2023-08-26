@@ -18,10 +18,19 @@ class ProductManager {
   }
 
   async writeFile(data) {
-    await fs.writeFile(this.path, JSON.stringify(data, null, 2), 'utf8');
+    try {
+      console.log('Writing data to file:', data); // Agregar esta línea para depurar
+      await fs.writeFile(this.path, JSON.stringify(data, null, 2), 'utf8');
+      console.log('Data written to file successfully'); // Agregar esta línea para depurar
+    } catch (error) {
+      console.error('Error writing to file:', error);
+      throw error;
+    }
   }
+  
 
   async addProduct(product) {
+    console.log('Adding product:', product); // Agregar esta línea para depurar
     const products = await this.readFile();
     const maxId = products.reduce((max, p) => (parseInt(p.id) > max ? parseInt(p.id) : max), 0);
     const newProduct = { ...product, id: maxId + 1 };
@@ -66,16 +75,17 @@ class ProductManager {
   }
   async deleteProduct(id) {
     const products = await this.readFile();
-
-    const updatedProducts = products.filter((p) => p.id !== 
-    parseInt(id));
-
+  
+    const updatedProducts = products.filter((p) => p.id !== parseInt(id));
+  
     if (updatedProducts.length === products.length) {
       throw new Error('Producto no encontrado');
     }
-
+  
     await this.writeFile(updatedProducts);
+  
+    return id; // Devuelve el ID del producto eliminado
   }
-}
+}  
 
 export default ProductManager;

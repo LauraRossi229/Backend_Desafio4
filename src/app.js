@@ -8,8 +8,9 @@ import cartsRouter from './routers/carts.routes.js';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import ProductManager from './models/ProductManager.js';
 
-
+const productManager = new ProductManager('./src/products.json');
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -38,10 +39,27 @@ io.on('connection', (socket) => {
     console.log('Cliente desconectado');
   });
 
-  socket.on('newProduct', (newProduct) => {
-    prods.push(newProduct); // Agrega el nuevo producto a la variable "prods"
+  socket.on('newProduct', async (newProduct) => {
+    // Agrega el nuevo producto a la variable "prods"
+    prods.push(newProduct);
     io.emit('prods', prods); // Emite la lista actualizada de productos a todos los clientes
+    
+    await productManager.addProduct(newProduct); // Asegúrate de que esta línea esté presente
   });
+  socket.on('deleteProduct', async (productId) => {
+    try {
+      const deletedProductId = await productManager.deleteProduct(productId);
+      if (deletedProductId) {
+        io.emit('productDeleted', deletedProductId);
+      } else {
+        console.log('Producto no encontrado');
+      }
+    } catch (error) {
+      console.error('Error al eliminar el producto:', error);
+    }
+  });
+
+
 });
 
 
